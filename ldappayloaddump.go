@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -62,7 +63,8 @@ func main() {
 		factoryValue := entry.GetAttributeValue("javaFactory")
 
 		if len(codeBaseValue) > 0 && len(factoryValue) > 0 {
-			classReqUrl := fmt.Sprintf("%s%s.class",codeBaseValue,factoryValue)
+			reqPath := strings.ReplaceAll(factoryValue,".","/")
+			classReqUrl := fmt.Sprintf("%s%s.class",codeBaseValue,reqPath)
 			fmt.Printf("[+] Dump class from %s\n",classReqUrl)
 			resp,err := http.Get(classReqUrl)
 			if err != nil {
@@ -70,8 +72,12 @@ func main() {
 				return
 			}
 			defer resp.Body.Close()
-			content,_ := ioutil.ReadAll(resp.Body)
-			data = content
+			if resp.StatusCode != 200 {
+				fmt.Printf("[-] http.Get() : HTTP %d \n",resp.StatusCode)
+			} else {
+				content,_ := ioutil.ReadAll(resp.Body)
+				data = content
+			}
 		} else {
 			for _, attr := range entry.Attributes {
 				if attr.Name == "javaSerializedData" {
