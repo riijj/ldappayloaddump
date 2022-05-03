@@ -27,7 +27,7 @@ func main() {
 	if len(searchPath) == 0 {
 		searchPath = "/"
 	}
-	var outFile string = "data.bin"
+	var outFile string = "data.class"
 	if len(os.Args) >= 3 {
 		outFile = os.Args[2]
 	}
